@@ -1,0 +1,14 @@
+# OpenAPI Generator Ignore
+
+README.md
+.gitignore
+test-requirements.txt
+requirements.txt
+git_push.sh
+tox.ini
+setup.py
+setup.cfg
+pyproject.toml
+.travis.yml
+.gitlab-ci.yml
+.github/workflows/python.yml

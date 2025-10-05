@@ -1,0 +1,2340 @@
+openapi: 3.0.4
+info:
+  title: "Rebrickable API"
+  version: "v3"
+servers:
+  - url: https://rebrickable.com/api/v3/
+security:
+  - HeaderAuth: []
+  - QueryAuth: []
+components:
+  securitySchemes:
+    HeaderAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: |-
+        Prefix the value with "key "
+    QueryAuth:
+      type: apiKey
+      in: query
+      name: key
+  parameters:
+    user_token:
+      name: user_token
+      in: path
+      required: true
+      schema:
+        type: string
+        example: 1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd
+    list_id:
+      name: list_id
+      in: path
+      required: true
+      schema:
+        type: integer
+    part_num:
+      name: part_num
+      in: path
+      required: true
+      schema:
+        type: string
+        example: "3069b"
+    set_num:
+      name: set_num
+      in: path
+      required: true
+      schema:
+        type: string
+        example: "31124-1"
+    color_id:
+      name: color_id
+      in: path
+      required: true
+      schema:
+        type: string
+        example: 72
+    page:
+      name: page
+      in: query
+      description: A page number within the paginated result set.
+      schema:
+        type: integer
+        minimum: 1
+    page_size:
+      name: page_size
+      in: query
+      description: Number of results to return per page.
+      schema:
+        type: integer
+        minimum: 1
+        default: 999
+    ordering:
+      name: ordering
+      in: query
+      description: Which field to use when ordering the results.
+      schema:
+        type: string
+    search:
+      name: search
+      in: query
+      description: A search term.
+      schema:
+        type: string
+    inc_part_details:
+      name: inc_part_details
+      in: query
+      description: Optional parameter inc_part_details=1 can be used to return additional part fields, the same as for a single part lookup.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 1
+    inc_minifig_parts:
+      name: inc_minifig_parts
+      in: query
+      description: Optional parameter inc_minifig_parts=1 can be used to include minifig parts in this call.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 1
+    inc_color_details:
+      name: inc_color_details
+      in: query
+      description: Optional parameter inc_color_details=0 can be used to prevent color field expansion and reduce response sizes.
+      schema:
+        type: integer
+        minimum: 0
+        maximum: 1
+    theme_id:
+      name: theme_id
+      in: query
+      schema:
+        type: integer
+        example: 672
+    min_year:
+      name: min_year
+      in: query
+      schema:
+        type: integer
+    max_year:
+      name: max_year
+      in: query
+      schema:
+        type: integer
+    min_parts:
+      name: min_parts
+      in: query
+      schema:
+        type: integer
+    max_parts:
+      name: max_parts
+      in: query
+      schema:
+        type: integer
+    in_set_num:
+      name: in_set_num
+      in: query
+      schema:
+        type: string
+        example: "60458-1"
+    in_theme_id:
+      name: in_theme_id
+      in: query
+      schema:
+        type: integer
+        example: 672
+  schemas:
+    LinksPaginated:
+      type: object
+      required: [count]
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          format: uri
+          example: "https://rebrickable.com/api/v3/.../?page=3&page_size=999"
+        previous:
+          type: string
+          format: uri
+          example: "https://rebrickable.com/api/v3/.../?page=1&page_size=999"
+    Color:
+      type: object
+      required: [id, name, rgb, is_trans]
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "Dark Bluish Gray"
+        rgb:
+          type: string
+          example: "6C6E68"
+        is_trans:
+          type: boolean
+          nullable: true
+          example: false
+        external_ids:
+          type: object
+          properties:
+            "BrickLink":
+              $ref: "#/components/schemas/ColorExternalId"
+            "BrickOwl":
+              $ref: "#/components/schemas/ColorExternalId"
+            "LEGO":
+              $ref: "#/components/schemas/ColorExternalId"
+            "Peeron":
+              $ref: "#/components/schemas/ColorExternalId"
+            "LDraw":
+              $ref: "#/components/schemas/ColorExternalId"
+    ColorFull:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/Color"
+        - required: [id, name, rgb, is_trans, external_ids]
+          properties: {}
+    ColorExternalId:
+      type: object
+      required: [ext_ids, ext_descrs]
+      properties:
+        ext_ids:
+          type: array
+          items:
+            type: integer
+            nullable: true
+            example: 199
+        ext_descrs:
+          type: array
+          items:
+            type: array
+            items:
+              type: string
+            example: ["Dark stone grey", "DK. ST. GREY"]
+    ElementFull:
+      type: object
+      required: [part, color, element_id, design_id]
+      properties:
+        part:
+          $ref: "#/components/schemas/PartFull"
+        color:
+          $ref: "#/components/schemas/ColorFull"
+        element_id:
+          type: string
+          example: "4211052"
+        design_id:
+          type: string
+          example: "3069"
+        element_img_url:
+          type: string
+          format: uri
+          nullable: true
+          example: "https://cdn.rebrickable.com/media/parts/elements/4211052.jpg"
+        part_img_url:
+          type: string
+          format: uri
+          nullable: true
+          example: "https://cdn.rebrickable.com/media/parts/elements/4211052.jpg"
+    PartColor:
+      type: object
+      required: [color_id, color_name, num_sets, num_set_parts, elements]
+      properties:
+        color_id:
+          type: integer
+          example: 72
+        color_name:
+          type: string
+          example: "Dark Bluish Gray"
+        num_sets:
+          type: integer
+        num_set_parts:
+          type: integer
+        part_img_url:
+          type: string
+          format: uri
+          nullable: true
+          example: "https://cdn.rebrickable.com/media/parts/elements/4211052.jpg"
+        elements:
+          type: array
+          items:
+            type: string
+            example: "4211052"
+    InvPart:
+      type: object
+      required: [id, inv_part_id, part, color, set_num, quantity, is_spare, element_id, num_sets]
+      properties:
+        id:
+          type: integer
+        inv_part_id:
+          type: integer
+        part:
+          $ref: "#/components/schemas/Part"
+        color:
+          $ref: "#/components/schemas/Color"
+        set_num:
+          type: string
+          example: "31124-1"
+        quantity:
+          type: integer
+          example: 1
+        is_spare:
+          type: boolean
+          example: false
+        element_id:
+          type: string
+          example: "4211052"
+        num_sets:
+          type: integer
+    PartListPart:
+      type: object
+      required: [list_id, quantity, color, part]
+      properties:
+        list_id:
+          type: integer
+        quantity:
+          type: integer
+          example: 1
+        color:
+          $ref: "#/components/schemas/Color"
+        part:
+          $ref: "#/components/schemas/Part"
+    PartListPartFull:
+      type: object
+      required: [list_id, quantity, color, part]
+      properties:
+        list_id:
+          type: integer
+        quantity:
+          type: integer
+          example: 1
+        color:
+          $ref: "#/components/schemas/ColorFull"
+        part:
+          $ref: "#/components/schemas/Part"
+    Part:
+      type: object
+      required: [part_num, name, part_cat_id, part_url, external_ids]
+      properties:
+        part_num:
+          type: string
+          example: "3069b"
+        name:
+          type: string
+          example: "Tile 1 x 2 with Groove"
+        part_cat_id:
+          type: integer
+          example: 19
+        year_from:
+          type: integer
+          example: 1977
+        year_to:
+          type: integer
+          example: 2025
+        part_url:
+          type: string
+          format: uri
+          example: "https://rebrickable.com/parts/3069b/tile-1-x-2-with-groove/"
+        part_img_url:
+          type: string
+          format: uri
+          nullable: true
+          example: "https://cdn.rebrickable.com/media/parts/elements/306901.jpg"
+        prints:
+          type: array
+          items:
+            type: string
+            example: "3069bpr0100"
+        molds:
+          type: array
+          items:
+            type: string
+            example: "3069a"
+        alternates:
+          type: array
+          items:
+            type: string
+            example: "63864"
+        external_ids:
+          type: object
+          properties:
+            "BrickLink":
+              $ref: "#/components/schemas/PartExternalId"
+            "BrickOwl":
+              $ref: "#/components/schemas/PartExternalId"
+            "LEGO":
+              $ref: "#/components/schemas/PartExternalId"
+            "Peeron":
+              $ref: "#/components/schemas/PartExternalId"
+            "LDraw":
+              $ref: "#/components/schemas/PartExternalId"
+        print_of:
+          type: string
+          nullable: true
+    PartFull:
+      allOf:
+        - $ref: "#/components/schemas/Part"
+        - required: [part_num, name, part_cat_id, year_from, year_to, part_url, prints, molds, alternates, external_ids, print_of]
+          properties: {}
+    PartExternalId:
+      type: array
+      items:
+        type: string
+        nullable: true
+        example: "113482"
+    UserPart:
+      type: object
+      required: [quantity, part, color]
+      properties:
+        quantity:
+          type: integer
+          example: 1
+        part:
+          $ref: "#/components/schemas/Part"
+        color:
+          $ref: "#/components/schemas/ColorFull"
+    LostPart:
+      type: object
+      required: [inv_part, lost_part_id, lost_quantity]
+      properties:
+        lost_part_id:
+          type: integer
+          format: int32
+        lost_quantity:
+          type: integer
+          format: int32
+          example: 1
+        inv_part:
+          $ref: "#/components/schemas/InvPart"
+    CreatedSet:
+      type: object
+      required: [set_num]
+      properties:
+        set_num:
+          type: string
+          example: "31124-1"
+        quantity:
+          type: integer
+          format: int32
+          example: 1
+        include_spares:
+          type: boolean
+          example: true
+    ReplacedSet:
+      type: object
+      properties:
+        quantity:
+          type: integer
+          format: int32
+          example: 1
+        include_spares:
+          type: boolean
+          example: true
+    CreatedPart:
+      type: object
+      required: [part_num, quantity, color_id]
+      properties:
+        part_num:
+          type: string
+          example: "3069b"
+        quantity:
+          type: integer
+          format: int32
+          example: 1
+        color_id:
+          type: integer
+          format: int32
+          example: 72
+    CreatedLostPart:
+      type: object
+      required: [inv_part_id]
+      properties:
+        lost_quantity:
+          type: integer
+          format: int32
+          example: 1
+        inv_part_id:
+          type: integer
+          format: int32
+    PartList:
+      type: object
+      required: [id, is_buildable, name, num_parts]
+      properties:
+        id:
+          type: integer
+        is_buildable:
+          type: boolean
+          example: true
+        name:
+          type: string
+          example: "Unnamed Part List"
+        num_parts:
+          type: integer
+    SetList:
+      type: object
+      required: [id, is_buildable, name, num_sets]
+      properties:
+        id:
+          type: integer
+        is_buildable:
+          type: boolean
+          example: true
+        name:
+          type: string
+          example: "Unnamed Set List"
+        num_sets:
+          type: integer
+    SetListSet:
+      type: object
+      required: [list_id, quantity, include_spares, set]
+      properties:
+        list_id:
+          type: integer
+        quantity:
+          type: integer
+          example: 1
+        include_spares:
+          type: boolean
+          example: true
+        set:
+          $ref: "#/components/schemas/Lset"
+    LsetResult:
+      type: object
+      required: [set_num, name, num_parts, set_url, last_modified_dt]
+      properties:
+        set_num:
+          type: string
+          example: "31124-1"
+        name:
+          type: string
+          example: "Super Robot"
+        num_parts:
+          type: integer
+          example: 159
+        set_img_url:
+          type: string
+          format: uri
+          nullable: true
+          example: "https://cdn.rebrickable.com/media/sets/31124-1/98247.jpg"
+        set_url:
+          type: string
+          format: uri
+          example: "https://rebrickable.com/sets/31124-1/super-robot/"
+        last_modified_dt:
+          type: string
+          format: date-time
+    LsetMinifig:
+      type: object
+      required: [id, set_num, set_name, quantity]
+      properties:
+        id:
+          type: integer
+          example: 34107
+        set_num:
+          type: string
+          example: "fig-015987"
+        set_name:
+          type: string
+          example: "Chef - White Torso, White Legs, White Hat, White Hat"
+        quantity:
+          type: integer
+          example: 1
+        set_img_url:
+          type: string
+          format: uri
+          nullable: true
+          example: "https://cdn.rebrickable.com/media/sets/fig-015987/153909.jpg"
+    Lset:
+      type: object
+      required: [set_num, name, year, theme_id, num_parts, set_url, last_modified_dt]
+      properties:
+        set_num:
+          type: string
+          example: "31124-1"
+        name:
+          type: string
+          example: "Super Robot"
+        year:
+          type: integer
+          example: 2022
+        theme_id:
+          type: integer
+          example: 672
+        num_parts:
+          type: integer
+          example: 159
+        set_img_url:
+          type: string
+          format: uri
+          nullable: true
+          example: "https://cdn.rebrickable.com/media/sets/31124-1/98247.jpg"
+        set_url:
+          type: string
+          format: uri
+          example: "https://rebrickable.com/sets/31124-1/super-robot/"
+        last_modified_dt:
+          type: string
+          format: date-time
+    Moc:
+      type: object
+      required: [set_num, name, year, theme_id, num_parts, moc_url, designer_name, designer_url]
+      properties:
+        set_num:
+          type: string
+        name:
+          type: string
+        year:
+          type: integer
+        theme_id:
+          type: integer
+        num_parts:
+          type: integer
+        moc_img_url:
+          type: string
+          format: uri
+          nullable: true
+        moc_url:
+          type: string
+          format: uri
+        designer_name:
+          type: string
+        designer_url:
+          type: string
+          format: uri
+paths:
+  /lego/colors/:
+    get:
+      tags: [lego]
+      operationId: lego_list_colors
+      summary: Get a list of all Colors
+      parameters:
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/page_size"
+        - $ref: "#/components/parameters/ordering"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/LinksPaginated"
+                  - required: [results]
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/ColorFull"
+  /lego/colors/{id}/:
+    get:
+      tags: [lego]
+      operationId: lego_get_color
+      summary: Get details about a specific Color
+      parameters:
+        - name: id
+          in: path
+          description: A unique value identifying this color.
+          required: true
+          schema:
+            type: integer
+            example: 72
+        - $ref: "#/components/parameters/ordering"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ColorFull"
+  /lego/elements/{element_id}/:
+    get:
+      tags: [lego]
+      operationId: lego_get_element
+      summary: Get details about a specific Element ID
+      parameters:
+        - name: element_id
+          in: path
+          required: true
+          schema:
+            type: string
+            example: "4211052"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ElementFull"
+  /lego/minifigs/:
+    get:
+      tags: [lego]
+      operationId: lego_list_minifigs
+      summary: Get a list of Minifigs
+      parameters:
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/page_size"
+        - $ref: "#/components/parameters/min_parts"
+        - $ref: "#/components/parameters/max_parts"
+        - $ref: "#/components/parameters/in_set_num"
+        - $ref: "#/components/parameters/in_theme_id"
+        - $ref: "#/components/parameters/ordering"
+        - $ref: "#/components/parameters/search"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/LinksPaginated"
+                  - required: [results]
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/LsetResult"
+  /lego/minifigs/{set_num}/:
+    get:
+      tags: [lego]
+      operationId: lego_get_minifig
+      summary: Get details for a specific Minifig
+      parameters:
+        - name: set_num
+          in: path
+          required: true
+          schema:
+            type: string
+            example: "fig-015987"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LsetResult"
+  /lego/minifigs/{set_num}/parts/:
+    get:
+      tags: [lego]
+      operationId: lego_list_minifig_parts
+      summary: Get a list of all Inventory Parts in this Minifig
+      parameters:
+        - $ref: "#/components/parameters/set_num"
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/page_size"
+        - $ref: "#/components/parameters/inc_part_details"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/LinksPaginated"
+                  - required: [results]
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/InvPart"
+  /lego/minifigs/{set_num}/sets/:
+    get:
+      tags: [lego]
+      operationId: lego_list_minifig_sets
+      summary: Get a list of Sets a Minifig has appeared in
+      parameters:
+        - $ref: "#/components/parameters/set_num"
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/page_size"
+        - $ref: "#/components/parameters/ordering"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/LinksPaginated"
+                  - required: [results]
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/LsetResult"
+  /lego/part_categories/:
+    get:
+      tags: [lego]
+      operationId: lego_list_part_categories
+      summary: Get a list of all Part Categories
+      parameters:
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/page_size"
+        - $ref: "#/components/parameters/ordering"
+      responses:
+        "200":
+          description: ""
+          content: {} # TODO
+  /lego/part_categories/{id}/:
+    get:
+      tags: [lego]
+      operationId: lego_get_part_category
+      summary: Get details about a specific Part Category
+      parameters:
+        - name: id
+          in: path
+          description: A unique integer value identifying this part category.
+          required: true
+          schema:
+            type: integer
+        - $ref: "#/components/parameters/ordering"
+      responses:
+        "200":
+          description: ""
+          content: {} # TODO
+  /lego/parts/:
+    get:
+      tags: [lego]
+      operationId: lego_list_parts
+      summary: Get a list of Parts
+      description: |-
+        Get a list of Parts.
+
+        Optionally, filter by one or more of the below query parameters.
+      parameters:
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/page_size"
+        - name: part_num
+          in: query
+          schema:
+            type: string
+            example: "3069b"
+        - name: part_nums
+          description: The optional part_nums filter parameter should be a comma separated list of part_num without spaces.
+          in: query
+          schema:
+            type: string
+        - name: part_cat_id
+          in: query
+          schema:
+            type: integer
+            example: 19
+        - name: color_id
+          in: query
+          schema:
+            type: integer
+            example: 72
+        - name: bricklink_id
+          in: query
+          schema:
+            type: string
+            example: "3069"
+        - name: brickowl_id
+          in: query
+          schema:
+            type: string
+            example: "487300"
+        - name: lego_id
+          in: query
+          schema:
+            type: string
+            example: "113482"
+        - name: ldraw_id
+          in: query
+          schema:
+            type: string
+            example: "3069b"
+        - $ref: "#/components/parameters/inc_part_details"
+        - $ref: "#/components/parameters/ordering"
+        - $ref: "#/components/parameters/search"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/LinksPaginated"
+                  - required: [results]
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Part"
+  /lego/parts/{part_num}/:
+    get:
+      tags: [lego]
+      operationId: lego_get_part
+      summary: Get details about a specific Part
+      parameters:
+        - $ref: "#/components/parameters/part_num"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PartFull"
+  /lego/parts/{part_num}/colors/:
+    get:
+      tags: [lego]
+      operationId: lego_list_part_colors
+      summary: Get a list of all Colors a Part has appeared in
+      parameters:
+        - $ref: "#/components/parameters/part_num"
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/page_size"
+        - $ref: "#/components/parameters/ordering"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/LinksPaginated"
+                  - required: [results]
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/PartColor"
+  /lego/parts/{part_num}/colors/{color_id}/:
+    get:
+      tags: [lego]
+      operationId: lego_get_part_color
+      summary: Get details about a specific Part/Color combination
+      parameters:
+        - $ref: "#/components/parameters/part_num"
+        - $ref: "#/components/parameters/color_id"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [year_from, year_to, num_sets, num_set_parts, elements]
+                properties:
+                  part_img_url:
+                    type: string
+                    format: uri
+                    nullable: true
+                  year_from:
+                    type: integer
+                    example: 1977
+                  year_to:
+                    type: integer
+                    example: 2025
+                  num_sets:
+                    type: integer
+                  num_set_parts:
+                    type: integer
+                  elements:
+                    type: array
+                    items:
+                      type: string
+                      example: "4211052"
+  /lego/parts/{part_num}/colors/{color_id}/sets/:
+    get:
+      tags: [lego]
+      operationId: lego_list_part_color_sets
+      summary: Get a list of all Sets the Part/Color combination has appeared in
+      parameters:
+        - $ref: "#/components/parameters/part_num"
+        - $ref: "#/components/parameters/color_id"
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/page_size"
+        - $ref: "#/components/parameters/ordering"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/LinksPaginated"
+                  - required: [results]
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Lset"
+  /lego/sets/:
+    get:
+      tags: [lego]
+      operationId: lego_list_sets
+      summary: "Get a list of Sets, optionally filtered by any of the below parameters."
+      parameters:
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/page_size"
+        - $ref: "#/components/parameters/theme_id"
+        - $ref: "#/components/parameters/min_year"
+        - $ref: "#/components/parameters/max_year"
+        - $ref: "#/components/parameters/min_parts"
+        - $ref: "#/components/parameters/max_parts"
+        - $ref: "#/components/parameters/ordering"
+        - $ref: "#/components/parameters/search"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/LinksPaginated"
+                  - required: [results]
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Lset"
+  /lego/sets/{set_num}/:
+    get:
+      tags: [lego]
+      operationId: lego_get_set
+      summary: Get details for a specific Set
+      parameters:
+        - $ref: "#/components/parameters/set_num"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Lset"
+  /lego/sets/{set_num}/alternates/:
+    get:
+      tags: [lego]
+      operationId: lego_list_set_alternates
+      summary: Get a list of MOCs which are Alternate Builds of a specific Set
+      description: |-
+        Get a list of MOCs which are Alternate Builds of a specific Set - i.e. all parts in the MOC can
+        be found in the Set.
+      parameters:
+        - $ref: "#/components/parameters/set_num"
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/page_size"
+        - $ref: "#/components/parameters/ordering"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/LinksPaginated"
+                  - required: [results]
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Moc"
+  /lego/sets/{set_num}/minifigs/:
+    get:
+      tags: [lego]
+      operationId: lego_list_set_minifigs
+      summary: Get a list of all Inventory Minifigs in this Set
+      parameters:
+        - name: set_num
+          in: path
+          required: true
+          schema:
+            type: string
+            example: "60458-1"
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/page_size"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/LinksPaginated"
+                  - required: [results]
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/LsetMinifig"
+  /lego/sets/{set_num}/parts/:
+    get:
+      tags: [lego]
+      operationId: lego_list_set_parts
+      summary: Get a list of all Inventory Parts in this Set
+      parameters:
+        - $ref: "#/components/parameters/set_num"
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/page_size"
+        - $ref: "#/components/parameters/inc_part_details"
+        - $ref: "#/components/parameters/inc_minifig_parts"
+        - $ref: "#/components/parameters/inc_color_details"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/LinksPaginated"
+                  - required: [results]
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/InvPart"
+  /lego/sets/{set_num}/sets/:
+    get:
+      tags: [lego]
+      operationId: lego_list_set_inventories
+      summary: Get a list of all Inventory Sets in this Set
+      parameters:
+        - $ref: "#/components/parameters/set_num"
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/page_size"
+      responses:
+        "200":
+          description: ""
+          content: {} # TODO
+  /lego/themes/:
+    get:
+      tags: [lego]
+      operationId: lego_list_themes
+      summary: Return all Themes
+      parameters:
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/page_size"
+        - $ref: "#/components/parameters/ordering"
+      responses:
+        "200":
+          description: ""
+          content: {} # TODO
+  /lego/themes/{id}/:
+    get:
+      tags: [lego]
+      operationId: lego_get_theme
+      summary: Return details for a specific Theme
+      parameters:
+        - name: id
+          in: path
+          description: A unique integer value identifying this theme.
+          required: true
+          schema:
+            type: integer
+        - $ref: "#/components/parameters/ordering"
+      responses:
+        "200":
+          description: ""
+          content: {} # TODO
+  /users/_token/:
+    post:
+      tags: [users]
+      operationId: user_create_user_token
+      summary: Generate a User Token to be used for authorising user account actions in subsequent calls
+      description: |-
+        Generate a User Token to be used for authorising user account actions in subsequent calls.
+
+        Username can be either the actual username or the user's email address.
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required: [password, username]
+              properties:
+                username:
+                  type: string
+                  description: Username (or email) of user
+                password:
+                  type: string
+                  description: Password of user
+        required: true
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [user_token]
+                properties:
+                  user_token:
+                    type: string
+                    example: 1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd
+  /users/badges/:
+    get:
+      tags: [users]
+      operationId: user_list_badges
+      summary: Get a list of all the available Badges
+      parameters:
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/page_size"
+        - $ref: "#/components/parameters/ordering"
+      responses:
+        "200":
+          description: ""
+          content: {} # TODO
+  /users/badges/{id}/:
+    get:
+      tags: [users]
+      operationId: user_get_badge
+      summary: Get details about a specific Badge
+      parameters:
+        - name: id
+          in: path
+          description: A unique integer value identifying this badge.
+          required: true
+          schema:
+            type: integer
+        - $ref: "#/components/parameters/ordering"
+      responses:
+        "200":
+          description: ""
+          content: {} # TODO
+  /users/{user_token}/allparts/:
+    get:
+      tags: [users]
+      operationId: user_list_all_parts
+      summary: Get a list of all the Parts in all the user's Part Lists as well as the Parts inside Sets in the user's Set Lists
+      description: |-
+        Get a list of all the Parts in all the user's Part Lists as well as the Parts inside Sets in the user's Set Lists.
+
+        WARNING: this call is very resource intensive, do not overuse it!
+
+        Optionally, filter by one or more of the below query parameters.
+      parameters:
+        - $ref: "#/components/parameters/user_token"
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/page_size"
+        - name: part_num
+          in: query
+          schema:
+            type: string
+            example: "3069b"
+        - name: part_cat_id
+          in: query
+          schema:
+            type: integer
+            example: 19
+        - name: color_id
+          in: query
+          schema:
+            type: integer
+            example: 72
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/LinksPaginated"
+                  - required: [results]
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/UserPart"
+  /users/{user_token}/build/{set_num}/:
+    get:
+      tags: [users]
+      operationId: user_build_set
+      summary: Find out how many parts the user needs to build the specified Set
+      description: |-
+        Find out how many parts the user needs to build the specified Set.
+
+        The user's default Build Settings will be used to calculate a Build Match % using their LEGO Collection of Sets
+        and Parts.
+      parameters:
+        - $ref: "#/components/parameters/user_token"
+        - $ref: "#/components/parameters/set_num"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [user, inventory, pct_owned, num_missing, num_ignored, num_owned_less_ignored, total_parts, total_parts_less_ignored, build_options]
+                properties:
+                  user:
+                    type: integer
+                  inventory:
+                    type: integer
+                  pct_owned:
+                    type: number
+                    format: float
+                  num_missing:
+                    type: integer
+                  num_ignored:
+                    type: integer
+                  num_owned_less_ignored:
+                    type: integer
+                  total_parts:
+                    type: integer
+                  total_parts_less_ignored:
+                    type: integer
+                  build_options:
+                    type: object
+                    required: [ignore_print, ignore_mold, ignore_altp, ignore_minifigs, ignore_non_lego, sort_by, color, min_parts, max_parts, min_year, max_year, added_days_ago, inc_official, inc_custom, inc_bmodels, inc_accessory, inc_premium, inc_alts, inc_owned]
+                    properties:
+                      ignore_print:
+                        type: boolean
+                      ignore_mold:
+                        type: boolean
+                      ignore_altp:
+                        type: boolean
+                      ignore_minifigs:
+                        type: boolean
+                      ignore_non_lego:
+                        type: boolean
+                      sort_by:
+                        type: integer
+                      color:
+                        type: integer
+                      theme:
+                        type: integer
+                        nullable: true
+                      min_parts:
+                        type: integer
+                      max_parts:
+                        type: integer
+                      min_year:
+                        type: integer
+                      max_year:
+                        type: integer
+                      added_days_ago:
+                        type: integer
+                      inc_official:
+                        type: boolean
+                      inc_custom:
+                        type: boolean
+                      inc_bmodels:
+                        type: boolean
+                      inc_accessory:
+                        type: boolean
+                      inc_premium:
+                        type: boolean
+                      inc_alts:
+                        type: boolean
+                      inc_owned:
+                        type: boolean
+  /users/{user_token}/lost_parts/:
+    get:
+      tags: [users]
+      operationId: user_list_lost_parts
+      summary: Get a list of all the Lost Parts from the user's LEGO collection
+      description: |-
+        Get a list of all the Lost Parts from the user's LEGO collection.
+
+        Optionally, filter by one or more of the below query parameters.
+      parameters:
+        - $ref: "#/components/parameters/user_token"
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/page_size"
+        - $ref: "#/components/parameters/ordering"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/LinksPaginated"
+                  - required: [results]
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/LostPart"
+    post:
+      tags: [users]
+      operationId: user_create_lost_part
+      summary: Add a Lost Part to the user
+      description: |-
+        Add a Lost Part to the user.
+
+        The inv_part_id field can be retrieved from the Set's inventory.
+
+        Returns the successfully created Part (status 201) or details for why the Part could not be added.
+      parameters:
+        - $ref: "#/components/parameters/user_token"
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: "#/components/schemas/CreatedLostPart"
+        required: true
+      responses:
+        "201":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LostPart"
+  /users/{user_token}/lost_parts//:
+    post:
+      tags: [users]
+      operationId: user_create_lost_parts
+      summary: Add Lost Parts to the user
+      description: |-
+        Add Lost Parts to the user.
+
+        The inv_part_id field can be retrieved from the Set's inventory.
+
+        Returns a list of successfully added Parts. If the Part already exists or is unrecognised, it will be skipped.
+      parameters:
+        - $ref: "#/components/parameters/user_token"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/CreatedLostPart"
+        required: true
+      responses:
+        "201":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CreatedLostPart"
+  /users/{user_token}/lost_parts/{id}/:
+    delete:
+      tags: [users]
+      operationId: user_delete_lost_part
+      summary: Remove the Lost Part from the user
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - $ref: "#/components/parameters/user_token"
+        - $ref: "#/components/parameters/ordering"
+      responses:
+        "204":
+          description: ""
+          content: {}
+  /users/{user_token}/minifigs/:
+    get:
+      tags: [users]
+      operationId: user_list_minifigs
+      summary: Get a list of all the Minifigs in all the user's Sets
+      description: |-
+        Get a list of all the Minifigs in all the user's Sets.
+        Note that this is a read-only list as Minifigs are
+        automatically determined by the Sets in the user's Set Lists.
+
+        Minifigs that were manually added to Set Lists can be retrieved via the
+        GET /api/v3/users/{user_token}/sets/ endpoint.
+
+        Optionally, filter by one or more of the below query parameters.
+      parameters:
+        - $ref: "#/components/parameters/user_token"
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/page_size"
+        - name: fig_set_num
+          in: query
+          schema:
+            type: string
+        - $ref: "#/components/parameters/ordering"
+        - $ref: "#/components/parameters/search"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/LinksPaginated"
+                  - required: [results]
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/LsetResult"
+  /users/{user_token}/partlists/:
+    get:
+      tags: [users]
+      operationId: user_list_partlists
+      summary: Get a list of all the user's Part Lists
+      parameters:
+        - $ref: "#/components/parameters/user_token"
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/page_size"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/LinksPaginated"
+                  - required: [results]
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/PartList"
+    post:
+      tags: [users]
+      operationId: user_create_partlist
+      summary: Add a new Part List
+      parameters:
+        - $ref: "#/components/parameters/user_token"
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                is_buildable:
+                  type: boolean
+                  example: true
+                name:
+                  type: string
+                  example: "Example Part List"
+        required: true
+      responses:
+        "201":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PartList"
+  /users/{user_token}/partlists/{list_id}/:
+    get:
+      tags: [users]
+      operationId: user_get_partlist
+      summary: Get details about a specific Part List
+      parameters:
+        - $ref: "#/components/parameters/user_token"
+        - $ref: "#/components/parameters/list_id"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PartList"
+    put:
+      tags: [users]
+      operationId: user_replace_partlist
+      summary: Replace an existing Part List's details
+      parameters:
+        - $ref: "#/components/parameters/user_token"
+        - $ref: "#/components/parameters/list_id"
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                is_buildable:
+                  type: boolean
+                  example: true
+                name:
+                  type: string
+                  example: "Example Part List"
+        required: true
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PartList"
+    delete:
+      tags: [users]
+      operationId: user_delete_partlist
+      summary: Delete a Part List and all its Parts
+      parameters:
+        - $ref: "#/components/parameters/user_token"
+        - $ref: "#/components/parameters/list_id"
+      responses:
+        "204":
+          description: ""
+          content: {}
+    patch:
+      tags: [users]
+      operationId: user_update_partlist
+      summary: Update an existing Part List's details
+      parameters:
+        - $ref: "#/components/parameters/user_token"
+        - $ref: "#/components/parameters/list_id"
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                is_buildable:
+                  type: boolean
+                  example: true
+                name:
+                  type: string
+                  example: "Example Part List"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PartList"
+  /users/{user_token}/partlists/{list_id}/parts/:
+    get:
+      tags: [users]
+      operationId: user_list_partlist_parts
+      summary: Get a list of all the Parts in a specific Part List
+      parameters:
+        - $ref: "#/components/parameters/user_token"
+        - $ref: "#/components/parameters/list_id"
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/page_size"
+        - $ref: "#/components/parameters/ordering"
+        - $ref: "#/components/parameters/inc_part_details"
+        - $ref: "#/components/parameters/inc_color_details"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/LinksPaginated"
+                  - required: [results]
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/PartListPart"
+    post:
+      tags: [users]
+      operationId: user_create_partlist_part
+      summary: Add a part to the Part List
+      description: |-
+        Add a Part to the Part List.
+
+        Returns the successfully created Part (status 201) or details for why the Part could not be added.
+      parameters:
+        - $ref: "#/components/parameters/user_token"
+        - $ref: "#/components/parameters/list_id"
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: "#/components/schemas/CreatedPart"
+        required: true
+      responses:
+        "201":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreatedPart"
+  /users/{user_token}/partlists/{list_id}/parts//:
+    post:
+      tags: [users]
+      operationId: user_create_partlist_parts
+      summary: Add Parts to the Part List
+      description: |-
+        Add Parts to the Part List.
+
+        Returns a list of successfully added Parts. If the Part already exists or is unrecognised, it will be skipped.
+      parameters:
+        - $ref: "#/components/parameters/user_token"
+        - $ref: "#/components/parameters/list_id"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/CreatedPart"
+        required: true
+      responses:
+        "201":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CreatedPart"
+  /users/{user_token}/partlists/{list_id}/parts/{part_num}/{color_id}/:
+    get:
+      tags: [users]
+      operationId: user_get_partlist_part
+      summary: Get details about a specific Part in the Part List
+      parameters:
+        - $ref: "#/components/parameters/part_num"
+        - $ref: "#/components/parameters/user_token"
+        - name: color_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 72
+        - $ref: "#/components/parameters/list_id"
+        - $ref: "#/components/parameters/ordering"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PartListPartFull"
+    put:
+      tags: [users]
+      operationId: user_update_partlist_part
+      summary: Replace an existing Part's details in the Part List
+      parameters:
+        - $ref: "#/components/parameters/part_num"
+        - $ref: "#/components/parameters/user_token"
+        - name: color_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 72
+        - $ref: "#/components/parameters/list_id"
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required: [quantity]
+              properties:
+                quantity:
+                  type: integer
+                  format: int32
+                  example: 1
+        required: true
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [quantity]
+                properties:
+                  quantity:
+                    type: integer
+                    format: int32
+                    example: 1
+    delete:
+      tags: [users]
+      operationId: user_delete_partlist_part
+      summary: Delete a Part from the Part List
+      parameters:
+        - $ref: "#/components/parameters/part_num"
+        - $ref: "#/components/parameters/user_token"
+        - name: color_id
+          in: path
+          required: true
+          schema:
+            type: integer
+            example: 72
+        - $ref: "#/components/parameters/list_id"
+      responses:
+        "204":
+          description: ""
+          content: {}
+  /users/{user_token}/parts/:
+    get:
+      tags: [users]
+      operationId: user_list_parts
+      summary: Get a list of all the Parts in all the user's Part Lists
+      description: |-
+        Get a list of all the Parts in all the user's Part Lists.
+
+        ### Set List logic
+
+        Parts appearing in multiple Part Lists will be listed multiple times.
+
+        Optionally, filter by one or more of the below query parameters.
+      parameters:
+        - $ref: "#/components/parameters/user_token"
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/page_size"
+        - name: part_num
+          in: query
+          schema:
+            type: string
+            example: "3069b"
+        - name: part_cat_id
+          in: query
+          schema:
+            type: integer
+            example: 19
+        - name: color_id
+          in: query
+          schema:
+            type: integer
+            example: 72
+        - $ref: "#/components/parameters/ordering"
+        - $ref: "#/components/parameters/search"
+        - $ref: "#/components/parameters/inc_part_details"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/LinksPaginated"
+                  - required: [results]
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/UserPart"
+  /users/{user_token}/profile/:
+    get:
+      tags: [users]
+      operationId: user_get_profile
+      summary: Get details about a specific user
+      parameters:
+        - $ref: "#/components/parameters/user_token"
+      responses:
+        "200":
+          description: ""
+          content: {} # TODO
+  /users/{user_token}/setlists/:
+    get:
+      tags: [users]
+      operationId: user_list_setlists
+      summary: Get a list of all the user's Set Lists
+      parameters:
+        - $ref: "#/components/parameters/user_token"
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/page_size"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/LinksPaginated"
+                  - required: [results]
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/SetList"
+    post:
+      tags: [users]
+      operationId: user_create_setlist
+      summary: Add a new Set List
+      parameters:
+        - $ref: "#/components/parameters/user_token"
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                is_buildable:
+                  type: boolean
+                  example: true
+                name:
+                  type: string
+                  example: "Example Set List"
+        required: true
+      responses:
+        "201":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SetList"
+  /users/{user_token}/setlists/{list_id}/:
+    get:
+      tags: [users]
+      operationId: user_get_setlist
+      summary: Get details about a specific Set List
+      parameters:
+        - $ref: "#/components/parameters/user_token"
+        - $ref: "#/components/parameters/list_id"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SetList"
+    put:
+      tags: [users]
+      operationId: user_replace_setlist
+      summary: Replace an existing Set List's details
+      parameters:
+        - $ref: "#/components/parameters/user_token"
+        - $ref: "#/components/parameters/list_id"
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                is_buildable:
+                  type: boolean
+                  example: true
+                name:
+                  type: string
+                  example: "Example Set List"
+        required: true
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SetList"
+    delete:
+      tags: [users]
+      operationId: user_delete_setlist
+      summary: Delete a Set List and all its Sets
+      parameters:
+        - $ref: "#/components/parameters/user_token"
+        - $ref: "#/components/parameters/list_id"
+      responses:
+        "204":
+          description: ""
+          content: {}
+    patch:
+      tags: [users]
+      operationId: user_update_setlist
+      summary: Update an existing Set List's details
+      parameters:
+        - $ref: "#/components/parameters/user_token"
+        - $ref: "#/components/parameters/list_id"
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                is_buildable:
+                  type: boolean
+                  example: true
+                name:
+                  type: string
+                  example: "Example Set List"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SetList"
+  /users/{user_token}/setlists/{list_id}/sets/:
+    get:
+      tags: [users]
+      operationId: user_list_setlist_sets
+      summary: Get a list of all the Sets in a specific Set List
+      parameters:
+        - $ref: "#/components/parameters/user_token"
+        - $ref: "#/components/parameters/list_id"
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/page_size"
+        - $ref: "#/components/parameters/ordering"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/LinksPaginated"
+                  - required: [results]
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/SetListSet"
+    post:
+      tags: [users]
+      operationId: user_create_setlist_set
+      summary: Add a Set to the Set List. Existing Sets are unaffected
+      description: |-
+        Add a Set to the Set List. Existing Sets are unaffected.
+
+        Returns the successfully created Set (status 201) or details for why the Set could not be added.
+      parameters:
+        - $ref: "#/components/parameters/user_token"
+        - $ref: "#/components/parameters/list_id"
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: "#/components/schemas/CreatedSet"
+        required: true
+      responses:
+        "201":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreatedSet"
+  /users/{user_token}/setlists/{list_id}/sets//:
+    post:
+      tags: [users]
+      operationId: user_create_setlist_sets
+      summary: Add Sets to the Set List. Existing Sets are unaffected
+      description: |-
+        Add Sets to the Set List. Existing Sets are unaffected.
+
+        Returns a list of successfully added Sets. If the Set already exists or is unrecognised, it will be skipped.
+      parameters:
+        - $ref: "#/components/parameters/user_token"
+        - $ref: "#/components/parameters/list_id"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/CreatedSet"
+        required: true
+      responses:
+        "201":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CreatedSet"
+  /users/{user_token}/setlists/{list_id}/sets/{set_num}/:
+    get:
+      tags: [users]
+      operationId: user_get_setlist_set
+      summary: Get details about a specific Set in the Set List
+      parameters:
+        - $ref: "#/components/parameters/user_token"
+        - $ref: "#/components/parameters/set_num"
+        - $ref: "#/components/parameters/list_id"
+        - $ref: "#/components/parameters/ordering"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SetListSet"
+    put:
+      tags: [users]
+      operationId: user_replace_setlist_set
+      summary: Replace an existing Set's details in the Set List
+      parameters:
+        - $ref: "#/components/parameters/user_token"
+        - $ref: "#/components/parameters/set_num"
+        - $ref: "#/components/parameters/list_id"
+        - $ref: "#/components/parameters/ordering"
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: "#/components/schemas/ReplacedSet"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReplacedSet"
+    delete:
+      tags: [users]
+      operationId: user_delete_setlist_set
+      summary: Delete a Set from the Set List
+      parameters:
+        - $ref: "#/components/parameters/user_token"
+        - $ref: "#/components/parameters/set_num"
+        - $ref: "#/components/parameters/list_id"
+        - $ref: "#/components/parameters/ordering"
+      responses:
+        "204":
+          description: ""
+          content: {}
+    patch:
+      tags: [users]
+      operationId: user_update_setlist_set
+      summary: Update an existing Set's details in the Set List
+      parameters:
+        - $ref: "#/components/parameters/user_token"
+        - $ref: "#/components/parameters/set_num"
+        - $ref: "#/components/parameters/list_id"
+        - $ref: "#/components/parameters/ordering"
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: "#/components/schemas/ReplacedSet"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReplacedSet"
+  /users/{user_token}/sets/:
+    get:
+      tags: [users]
+      operationId: user_list_sets
+      summary: Get a list of all the Sets in the user's LEGO collection
+      description: |-
+        Get a list of all the Sets in the user's LEGO collection.
+
+        ### Set List logic
+
+        Sets appearing in multiple Set Lists will be listed multiple times.
+
+        Optionally, filter by one or more of the below query parameters.
+      parameters:
+        - $ref: "#/components/parameters/user_token"
+        - $ref: "#/components/parameters/page"
+        - $ref: "#/components/parameters/page_size"
+        - name: set_num
+          in: query
+          schema:
+            type: string
+            example: "31124-1"
+        - $ref: "#/components/parameters/theme_id"
+        - $ref: "#/components/parameters/min_year"
+        - $ref: "#/components/parameters/max_year"
+        - $ref: "#/components/parameters/min_parts"
+        - $ref: "#/components/parameters/max_parts"
+        - $ref: "#/components/parameters/ordering"
+        - $ref: "#/components/parameters/search"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/LinksPaginated"
+                  - required: [results]
+                    properties:
+                      results:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/SetListSet"
+    post:
+      tags: [users]
+      operationId: user_create_set
+      summary: Add a Set to the user's LEGO collection. Existing Sets are unaffected
+      description: |-
+        Add a Set to the user's LEGO collection. Existing Sets are unaffected.
+
+        ### Set List logic
+
+        The Set List used when adding sets is chosen in the following order:
+
+        1. If no Set Lists exist, one will be created and used
+        2. User's configured default Set List for Imports
+        3. The first Set List alphabetically
+
+        Returns the successfully created Set (status 201) or details for why the Set could not
+        be added.
+      parameters:
+        - $ref: "#/components/parameters/user_token"
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: "#/components/schemas/CreatedSet"
+        required: true
+      responses:
+        "201":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreatedSet"
+  /users/{user_token}/sets//:
+    post:
+      tags: [users]
+      operationId: user_create_sets
+      summary: Add Sets to the user's LEGO collection. Existing Sets are unaffected
+      description: |-
+        Add Sets to the user's LEGO collection. Existing Sets are unaffected.
+
+        ### Set List logic
+
+        The Set List used when adding sets is chosen in the following order:
+        1. If no Set Lists exist, one will be created and used
+        2. User's configured default Set List for Imports
+        3. The first Set List alphabetically
+
+        Returns a list of successfully added Sets. If the Set already exists or is unrecognised, it will be skipped.
+      parameters:
+        - $ref: "#/components/parameters/user_token"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/CreatedSet"
+        required: true
+      responses:
+        "201":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CreatedSet"
+  /users/{user_token}/sets/sync/:
+    post:
+      tags: [users]
+      operationId: user_sync_set
+      summary: Synchronise a user's Sets to the POSTed set
+      description: |-
+        Synchronise a user's Sets to the POSTed set.
+
+        ### Set List logic
+
+        This is used to completely replace the user's Sets with those in the supplied list.
+        It will remove any Sets in Rebrickable that are not found in the supplied list.
+        It will attempt to keep any current Rebrickable Sets in their existing Set Lists, and will add any new Sets
+        found into the Default Set List for Imports in the user's settings.
+
+        Returns the successfully created Set (status 201) or details for why the Set could not
+        be added.
+      parameters:
+        - $ref: "#/components/parameters/user_token"
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: "#/components/schemas/CreatedSet"
+        required: true
+      responses:
+        "201":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreatedSet"
+  /users/{user_token}/sets/sync//:
+    post:
+      tags: [users]
+      operationId: user_sync_sets
+      summary: Synchronise a user's Sets to the POSTed list
+      description: |-
+        Synchronise a user's Sets to the POSTed list.
+
+        ### Set List logic
+
+        This is used to completely replace the user's Sets with those in the supplied list.
+        It will remove any Sets in Rebrickable that are not found in the supplied list.
+        It will attempt to keep any current Rebrickable Sets in their existing Set Lists, and will add any new Sets
+        found into the Default Set List for Imports in the user's settings.
+
+        Returns a list of successfully added Sets. If the Set is unrecognised, it will be skipped.
+      parameters:
+        - $ref: "#/components/parameters/user_token"
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/CreatedSet"
+        required: true
+      responses:
+        "201":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/CreatedSet"
+  /users/{user_token}/sets/{set_num}/:
+    get:
+      tags: [users]
+      operationId: user_get_set
+      summary: Get details about a specific Set in the user's LEGO collection
+      description: |-
+        Get details about a specific Set in the user's LEGO collection.
+
+        ### Set List logic
+
+        Because this merges sets found across all Set Lists the fields list_id and include_spares may not be
+        accurate unless the Set actually only exists in a single Set List.
+      parameters:
+        - $ref: "#/components/parameters/user_token"
+        - $ref: "#/components/parameters/set_num"
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SetListSet"
+    put:
+      tags: [users]
+      operationId: user_update_set
+      summary: Update an existing Set's quantity in all Set Lists
+      description: |-
+        Update an existing Set's quantity in all Set Lists.
+
+        This PUT call is different to others in that it will create
+        the Set if it doesn't already exist, and it will delete the Set if you pass a quantity of 0.
+
+        ### Set List logic
+
+        * Default Set List = user's configured default import list or the first alphabetically if none exist.
+        * Increasing quantity = add to Set in default Set List if it exists, else add it there
+        * Decreasing quantity = remove from Set in default Set List first, then from remaining lists until done
+      parameters:
+        - $ref: "#/components/parameters/user_token"
+        - $ref: "#/components/parameters/set_num"
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required: [quantity]
+              properties:
+                quantity:
+                  type: integer
+                  format: int32
+                  example: 1
+      responses:
+        "200":
+          description: ""
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [quantity]
+                properties:
+                  quantity:
+                    type: integer
+                    format: int32
+                    example: 1
+    delete:
+      tags: [users]
+      operationId: user_delete_set
+      summary: Delete the Set from all the user's Set Lists
+      parameters:
+        - $ref: "#/components/parameters/user_token"
+        - $ref: "#/components/parameters/set_num"
+      responses:
+        "204":
+          description: ""
+          content: {}
