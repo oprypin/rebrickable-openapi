@@ -771,7 +771,7 @@ paths:
         - $ref: "#/components/parameters/ordering"
       responses:
         "200":
-          description: ""
+          description: "NOTE: The response of this endpoint has not been documented yet."
           content: {} # TODO
   /lego/part_categories/{id}/:
     get:
@@ -788,7 +788,7 @@ paths:
         - $ref: "#/components/parameters/ordering"
       responses:
         "200":
-          description: ""
+          description: "NOTE: The response of this endpoint has not been documented yet."
           content: {} # TODO
   /lego/parts/:
     get:
@@ -1093,7 +1093,7 @@ paths:
         - $ref: "#/components/parameters/page_size"
       responses:
         "200":
-          description: ""
+          description: "NOTE: The response of this endpoint has not been documented yet."
           content: {} # TODO
   /lego/themes/:
     get:
@@ -1106,7 +1106,7 @@ paths:
         - $ref: "#/components/parameters/ordering"
       responses:
         "200":
-          description: ""
+          description: "NOTE: The response of this endpoint has not been documented yet."
           content: {} # TODO
   /lego/themes/{id}/:
     get:
@@ -1123,7 +1123,7 @@ paths:
         - $ref: "#/components/parameters/ordering"
       responses:
         "200":
-          description: ""
+          description: "NOTE: The response of this endpoint has not been documented yet."
           content: {} # TODO
   /users/_token/:
     post:
@@ -1171,7 +1171,7 @@ paths:
         - $ref: "#/components/parameters/ordering"
       responses:
         "200":
-          description: ""
+          description: "NOTE: The response of this endpoint has not been documented yet."
           content: {} # TODO
   /users/badges/{id}/:
     get:
@@ -1188,7 +1188,7 @@ paths:
         - $ref: "#/components/parameters/ordering"
       responses:
         "200":
-          description: ""
+          description: "NOTE: The response of this endpoint has not been documented yet."
           content: {} # TODO
   /users/{user_token}/allparts/:
     get:
@@ -1804,7 +1804,7 @@ paths:
         - $ref: "#/components/parameters/user_token"
       responses:
         "200":
-          description: ""
+          description: "NOTE: The response of this endpoint has not been documented yet."
           content: {} # TODO
   /users/{user_token}/setlists/:
     get:
