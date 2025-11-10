@@ -53,7 +53,7 @@ components:
       required: true
       schema:
         type: string
-        example: 72
+        example: 322
     page:
       name: page
       in: query
@@ -242,7 +242,7 @@ components:
       properties:
         color_id:
           type: integer
-          example: 72
+          example: 322
         color_name:
           type: string
           example: "Medium Azure"
@@ -444,7 +444,7 @@ components:
         color_id:
           type: integer
           format: int32
-          example: 72
+          example: 322
     CreatedLostPart:
       type: object
       required: [inv_part_id]
@@ -637,7 +637,7 @@ paths:
           required: true
           schema:
             type: integer
-            example: 72
+            example: 322
         - $ref: "#/components/parameters/ordering"
       responses:
         "200":
@@ -821,7 +821,7 @@ paths:
           in: query
           schema:
             type: integer
-            example: 72
+            example: 322
         - name: bricklink_id
           in: query
           schema:
@@ -1222,7 +1222,7 @@ paths:
           in: query
           schema:
             type: integer
-            example: 72
+            example: 322
       responses:
         "200":
           description: ""
@@ -1682,7 +1682,7 @@ paths:
           required: true
           schema:
             type: integer
-            example: 72
+            example: 322
         - $ref: "#/components/parameters/list_id"
         - $ref: "#/components/parameters/ordering"
       responses:
@@ -1704,7 +1704,7 @@ paths:
           required: true
           schema:
             type: integer
-            example: 72
+            example: 322
         - $ref: "#/components/parameters/list_id"
       requestBody:
         content:
@@ -1743,7 +1743,7 @@ paths:
           required: true
           schema:
             type: integer
-            example: 72
+            example: 322
         - $ref: "#/components/parameters/list_id"
       responses:
         "204":
@@ -1780,7 +1780,7 @@ paths:
           in: query
           schema:
             type: integer
-            example: 72
+            example: 322
         - $ref: "#/components/parameters/ordering"
         - $ref: "#/components/parameters/search"
         - $ref: "#/components/parameters/inc_part_details"
