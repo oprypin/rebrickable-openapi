@@ -165,13 +165,13 @@ components:
       properties:
         id:
           type: integer
-          example: 1
+          example: 322
         name:
           type: string
-          example: "Dark Bluish Gray"
+          example: "Medium Azure"
         rgb:
           type: string
-          example: "6C6E68"
+          example: "36AEBF"
         is_trans:
           type: boolean
           nullable: true
@@ -211,7 +211,7 @@ components:
             type: array
             items:
               type: string
-            example: ["Dark stone grey", "DK. ST. GREY"]
+            example: ["Medium Azure", "MEDIUM AZUR"]
     ElementFull:
       type: object
       required: [part, color, element_id, design_id]
@@ -222,7 +222,7 @@ components:
           $ref: "#/components/schemas/ColorFull"
         element_id:
           type: string
-          example: "4211052"
+          example: "4649741"
         design_id:
           type: string
           example: "3069"
@@ -230,12 +230,12 @@ components:
           type: string
           format: uri
           nullable: true
-          example: "https://cdn.rebrickable.com/media/parts/elements/4211052.jpg"
+          example: "https://cdn.rebrickable.com/media/parts/elements/4649741.jpg"
         part_img_url:
           type: string
           format: uri
           nullable: true
-          example: "https://cdn.rebrickable.com/media/parts/elements/4211052.jpg"
+          example: "https://cdn.rebrickable.com/media/parts/elements/4649741.jpg"
     PartColor:
       type: object
       required: [color_id, color_name, num_sets, num_set_parts, elements]
@@ -245,7 +245,7 @@ components:
           example: 72
         color_name:
           type: string
-          example: "Dark Bluish Gray"
+          example: "Medium Azure"
         num_sets:
           type: integer
         num_set_parts:
@@ -254,12 +254,12 @@ components:
           type: string
           format: uri
           nullable: true
-          example: "https://cdn.rebrickable.com/media/parts/elements/4211052.jpg"
+          example: "https://cdn.rebrickable.com/media/parts/elements/4649741.jpg"
         elements:
           type: array
           items:
             type: string
-            example: "4211052"
+            example: "4649741"
     InvPart:
       type: object
       required: [id, inv_part_id, part, color, set_num, quantity, is_spare, element_id, num_sets]
@@ -283,7 +283,7 @@ components:
           example: false
         element_id:
           type: string
-          example: "4211052"
+          example: "4649741"
         num_sets:
           type: integer
     PartListPart:
@@ -294,7 +294,7 @@ components:
           type: integer
         quantity:
           type: integer
-          example: 1
+          example: 2
         color:
           $ref: "#/components/schemas/Color"
         part:
@@ -307,7 +307,7 @@ components:
           type: integer
         quantity:
           type: integer
-          example: 1
+          example: 2
         color:
           $ref: "#/components/schemas/ColorFull"
         part:
@@ -339,7 +339,7 @@ components:
           type: string
           format: uri
           nullable: true
-          example: "https://cdn.rebrickable.com/media/parts/elements/306901.jpg"
+          example: "https://cdn.rebrickable.com/media/parts/elements/306926.jpg"
         prints:
           type: array
           items:
@@ -657,7 +657,7 @@ paths:
           required: true
           schema:
             type: string
-            example: "4211052"
+            example: "4649741"
       responses:
         "200":
           description: ""
@@ -918,6 +918,7 @@ paths:
                     type: string
                     format: uri
                     nullable: true
+                    example: "https://cdn.rebrickable.com/media/parts/elements/4649741.jpg"
                   year_from:
                     type: integer
                     example: 1977
@@ -926,13 +927,15 @@ paths:
                     example: 2025
                   num_sets:
                     type: integer
+                    example: 1234
                   num_set_parts:
                     type: integer
+                    example: 12345
                   elements:
                     type: array
                     items:
                       type: string
-                      example: "4211052"
+                      example: "4649741"
   /lego/parts/{part_num}/colors/{color_id}/sets/:
     get:
       tags: [lego]
